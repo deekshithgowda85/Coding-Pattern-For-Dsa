@@ -1,0 +1,379 @@
+# Pattern 6: In-place Reversal of a LinkedList
+
+In a lot of problems, we are asked to reverse the links between a set of nodes of a <b>LinkedList</b>. Often, the constraint is that we need to do this </i>in-place</i>, i.e., using the existing node objects and without using extra memory.
+
+<b></i>in-place</i> Reversal of a LinkedList pattern</b> describes an efficient way to solve the above problem.
+
+## Reverse a LinkedList (easy)
+
+https://leetcode.com/problems/reverse-linked-list/
+
+> Given the head of a Singly <b>LinkedList</b>, reverse the <b>LinkedList</b>. Write a function to return the new head of the reversed <b>LinkedList</b>.
+
+To reverse a <b>LinkedList</b>, we need to reverse one node at a time. We will start with a variable `current` which will initially point to the head of the <b>LinkedList</b> and a variable `previous` which will point to the previous node that we have processed; initially `previous` will point to `null`.
+
+In a stepwise manner, we will reverse the `current` node by pointing it to the `previous` before moving on to the next node. Also, we will update the `previous` to always point to the previous node that we have processed.
+
+```cpp
+#include <iostream>
+using namespace std;
+
+struct Node {
+  int value;
+  Node* next;
+  explicit Node(int v, Node* n = nullptr) : value(v), next(n) {}
+
+  string printList() {
+    string result;
+    Node* temp = this;
+    while (temp != nullptr) {
+      result += to_string(temp->value) + " ";
+      temp = temp->next;
+    }
+    return result;
+  }
+};
+
+Node* reverse(Node* head) {
+  Node* current = head;
+  Node* previous = nullptr;
+  while (current != nullptr) {
+    Node* next = current->next;
+    current->next = previous;
+    previous = current;
+    current = next;
+  }
+  return previous;
+}
+```
+
+- The time complexity of our algorithm will be `O(N)` where `N’` is the total number of nodes in the <b>LinkedList</b>.
+- We only used constant space, therefore, the space complexity of our algorithm is `O(1)`.
+
+## Reverse a Sub-list (medium)
+
+https://leetcode.com/problems/reverse-linked-list-ii/
+
+> Given the head of a <b>LinkedList</b> and two positions `p` and `q`, reverse the <b>LinkedList</b> from position `p` to `q`.
+
+The problem follows the <b></i>in-place</i> Reversal</b> of a <b>LinkedList</b> pattern. We can use a similar approach as discussed in <b>Reverse a LinkedList</b>. Here are the steps we need to follow:
+
+1. Skip the first `p-1` nodes, to reach the node at position `p`.
+2. Remember the node at position `p-1` to be used later to connect with the reversed sub-list.
+3. Next, reverse the nodes from `p` to `q` using the same approach discussed in <b>Reverse a LinkedList</b>.
+4. Connect the `p-1` and `q+1` nodes to the reversed sub-list.
+
+```cpp
+#include <string>
+using namespace std;
+
+struct Node {
+  int value;
+  Node* next;
+  explicit Node(int v, Node* n = nullptr) : value(v), next(n) {}
+
+  string getList() {
+    string result;
+    Node* temp = this;
+    while (temp != nullptr) {
+      result += to_string(temp->value) + " ";
+      temp = temp->next;
+    }
+    return result;
+  }
+};
+
+Node* reverseSubList(Node* head, int p, int q) {
+  if (p == q) {
+    return head;
+  }
+
+  Node* current = head;
+  Node* previous = nullptr;
+  int i = 0;
+  while (current != nullptr && i < p - 1) {
+    previous = current;
+    current = current->next;
+    i++;
+  }
+
+  Node* lastNodeOfFirstPart = previous;
+  Node* lastNodeOfSubList = current;
+  Node* next = nullptr;
+
+  i = 0;
+  while (current != nullptr && i < q - p + 1) {
+    next = current->next;
+    current->next = previous;
+    previous = current;
+    current = next;
+    i++;
+  }
+
+  if (lastNodeOfFirstPart != nullptr) {
+    lastNodeOfFirstPart->next = previous;
+  } else {
+    head = previous;
+  }
+  lastNodeOfSubList->next = current;
+  return head;
+}
+```
+
+- The time complexity of our algorithm will be `O(N)` where `N` is the total number of nodes in the <b>LinkedList</b>.
+- We only used constant space, therefore, the space complexity of our algorithm is `O(1)`.
+
+> 🌟 Reverse the first `k` elements of a given <b>LinkedList</b>.
+
+This problem can be easily converted to our parent problem; to reverse the first `k` nodes of the list, we need to pass `p=1` and `q=k`.
+
+> 🌟 Given a <b>LinkedList</b> with `n` nodes, reverse it based on its size in the following way:
+>
+> 1. If `n` is even, reverse the list in a group of `n/2` nodes.
+> 2. If `n` is odd, keep the middle node as it is, reverse the first `n/2` nodes and reverse the last `n/2` nodes.
+
+When `n` is even we can perform the following steps:
+
+1. Reverse first `n/2` nodes: `head = reverse(head, 1, n/2)`
+2. Reverse last `n/2` nodes: `head = reverse(head, n/2 + 1, n)`
+
+When `n` is odd, our algorithm will look like:
+
+1. `head = reverse(head, 1, n/2)`
+2. `head = reverse(head, n/2 + 2, n)`
+   Please note the function call in the second step. We’re skipping two elements as we will be skipping the middle element.
+
+## Reverse every K-element Sub-list (medium)
+
+https://leetcode.com/problems/reverse-nodes-in-k-group/
+
+> Given the head of a <b>LinkedList</b> and a number ‘k’, <b>reverse every ‘k’ sized sub-list</b> starting from the head.
+> If, in the end, you are left with a sub-list with less than ‘k’ elements, reverse it too.
+
+The problem follows the <b></i>in-place</i> Reversal of a LinkedList</b> pattern and is quite similar to <b>Reverse a Sub-list</b>. The only difference is that we have to reverse all the sub-lists. We can use the same approach, starting with the first sub-list (i.e. `p=1, q=k`) and keep reversing all the sublists of size ‘k’.
+
+```cpp
+#include <string>
+using namespace std;
+
+struct Node {
+  int value;
+  Node* next;
+  explicit Node(int v, Node* n = nullptr) : value(v), next(n) {}
+
+  string getList() {
+    string result;
+    Node* temp = this;
+    while (temp != nullptr) {
+      result += to_string(temp->value) + " ";
+      temp = temp->next;
+    }
+    return result;
+  }
+};
+
+Node* reverseEveryKElements(Node* head, int k) {
+  if (k <= 1 || head == nullptr) {
+    return head;
+  }
+
+  Node* current = head;
+  Node* previous = nullptr;
+
+  while (true) {
+    Node* lastNodeOfPreviousPart = previous;
+    Node* lastNodeOfSubList = current;
+    Node* next = nullptr;
+
+    int i = 0;
+    while (current != nullptr && i < k) {
+      next = current->next;
+      current->next = previous;
+      previous = current;
+      current = next;
+      i++;
+    }
+
+    if (lastNodeOfPreviousPart != nullptr) {
+      lastNodeOfPreviousPart->next = previous;
+    } else {
+      head = previous;
+    }
+
+    lastNodeOfSubList->next = current;
+
+    if (current == nullptr) {
+      break;
+    }
+    previous = lastNodeOfSubList;
+  }
+  return head;
+}
+```
+
+- The time complexity of our algorithm will be `O(N)` where `N` is the total number of nodes in the <b>LinkedList</b>.
+- We only used constant space, therefore, the space complexity of our algorithm is `O(1)`.
+
+## 🌟 Reverse alternating K-element Sub-list (medium)
+
+> Given the head of a <b>LinkedList</b> and a number `K`, <b>reverse every alternating `K` sized sub-list</b> starting from the head.
+>
+> If, in the end, you are left with a sub-list with less than `K` elements, reverse it too.
+
+The problem follows the <b></i>in-place</i> Reversal of a LinkedList</b> pattern and is quite similar to <b>Reverse every K-element Sub-list</b>. The only difference is that we have to skip `K` alternating elements. We can follow a similar approach, and in each iteration after reversing `K` elements, we will skip the next `K` elements.
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Node {
+  int value;
+  Node* next;
+  explicit Node(int v, Node* n = nullptr) : value(v), next(n) {}
+
+  void printList() {
+    Node* temp = this;
+    while (temp != nullptr) {
+      cout << temp->value << " ";
+      temp = temp->next;
+    }
+    cout << "\n";
+  }
+};
+
+Node* reverseAlternateKElements(Node* head, int k) {
+  if (head == nullptr || k <= 1) {
+    return head;
+  }
+
+  Node* current = head;
+  Node* previous = nullptr;
+
+  while (current != nullptr) {
+    Node* lastNodeOfPreviousPart = previous;
+    Node* lastNodeOfSubList = current;
+    Node* next = nullptr;
+
+    int i = 0;
+    while (current != nullptr && i < k) {
+      next = current->next;
+      current->next = previous;
+      previous = current;
+      current = next;
+      i++;
+    }
+
+    if (lastNodeOfPreviousPart != nullptr) {
+      lastNodeOfPreviousPart->next = previous;
+    } else {
+      head = previous;
+    }
+
+    lastNodeOfSubList->next = current;
+
+    i = 0;
+    while (current != nullptr && i < k) {
+      previous = current;
+      current = current->next;
+      i++;
+    }
+  }
+  return head;
+}
+
+int main() {
+  Node* head = new Node(1);
+  head->next = new Node(2);
+  head->next->next = new Node(3);
+  head->next->next->next = new Node(4);
+  head->next->next->next->next = new Node(5);
+  head->next->next->next->next->next = new Node(6);
+  head->next->next->next->next->next->next = new Node(7);
+  head->next->next->next->next->next->next->next = new Node(8);
+
+  cout << "Nodes of original LinkedList are: ";
+  head->printList();
+  Node* result = reverseAlternateKElements(head, 2);
+  cout << "Nodes of reversed LinkedList are: ";
+  result->printList();
+}
+```
+
+- The time complexity of our algorithm will be `O(N)`where `N’` is the total number of nodes in the <b>LinkedList</b>.
+- We only used constant space, therefore, the space complexity of our algorithm is `O(1)`.
+
+## 🌟 Rotate a LinkedList (medium)
+
+https://leetcode.com/problems/rotate-list/
+
+> Given the head of a Singly <b>LinkedList</b> and a number `K`, rotate the <b>LinkedList</b> to the right by `K` nodes.
+
+Another way of defining the rotation is to take the sub-list of `K` ending nodes of the <b>LinkedList</b> and connect them to the beginning. Other than that we have to do three more things:
+
+1. Connect the last node of the <b>LinkedList</b> to the head, because the list will have a different tail after the rotation.
+2. The new head of the <b>LinkedList</b> will be the node at the beginning of the sublist.
+3. The node right before the start of sub-list will be the new tail of the rotated <b>LinkedList</b>.
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Node {
+  int value;
+  Node* next;
+  explicit Node(int v, Node* n = nullptr) : value(v), next(n) {}
+
+  string getList() {
+    string result;
+    Node* temp = this;
+    while (temp != nullptr) {
+      result += to_string(temp->value) + " ";
+      temp = temp->next;
+    }
+    return result;
+  }
+};
+
+Node* rotate(Node* head, int rotations) {
+  if (head == nullptr || head->next == nullptr || rotations <= 0) {
+    return head;
+  }
+
+  Node* lastNode = head;
+  int listLength = 1;
+  while (lastNode->next != nullptr) {
+    lastNode = lastNode->next;
+    listLength++;
+  }
+
+  lastNode->next = head;  // make it circular
+  rotations %= listLength;
+  int skipLength = listLength - rotations;
+  Node* lastNodeOfRotatedList = head;
+  for (int i = 0; i < skipLength - 1; i++) {
+    lastNodeOfRotatedList = lastNodeOfRotatedList->next;
+  }
+
+  head = lastNodeOfRotatedList->next;
+  lastNodeOfRotatedList->next = nullptr;
+  return head;
+}
+
+int main() {
+  Node* head = new Node(1);
+  head->next = new Node(2);
+  head->next->next = new Node(3);
+  head->next->next->next = new Node(4);
+  head->next->next->next->next = new Node(5);
+  head->next->next->next->next->next = new Node(6);
+
+  cout << "Nodes of original LinkedList are: " << head->getList() << "\n";
+  Node* rotated = rotate(head, 3);
+  cout << "Nodes of rotated LinkedList are: " << rotated->getList() << "\n";
+}
+```
+
+- The time complexity of our algorithm will be `O(N)` where `N’` is the total number of nodes in the <b>LinkedList</b>.
+- We only used constant space, therefore, the space complexity of our algorithm is `O(1)`.
